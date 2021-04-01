@@ -23,11 +23,16 @@
               </div>
             </div>
             <br />
-            <h5 v-if="listTareas.length == 0">
+            <div class="text-center" v-if="loading">
+              <div class="spinner-border text-success" role="status">
+                <span class="sr-only">Loading...</span>
+              </div>
+            </div>
+            <h5 v-if="listTareas.length == 0 && !loading">
               No hay tareas para mostrar
             </h5>
             <!-- {{ listTareas }} -->
-            <ul class="list-group">
+            <ul class="list-group" v-if="!loading">
               <li
                 v-for="(tarea, index) of listTareas"
                 :key="index"
@@ -36,18 +41,19 @@
                 <span
                   class="cursor"
                   v-bind:class="{ 'text-success': tarea.estado }"
-                  ><i
+                >
+                  <i
                     v-bind:class="[
                       tarea.estado ? 'fas fa-check-circle' : 'fal fa-circle',
                     ]"
-                    v-on:click="editarEstado(tarea, index)"
+                    v-on:click="editarEstado(tarea, tarea.id)"
                   ></i>
                 </span>
                 <!-- hacer la tarea -->
                 {{ tarea.nombre }}
                 <span
                   class="text-danger cursor"
-                  v-on:click="eliminarTarea(index)"
+                  v-on:click="eliminarTarea(tarea.id)"
                 >
                   <i class="far fa-trash-alt"></i>
                 </span>
@@ -61,12 +67,14 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "Tarea",
   data() {
     return {
       tarea: "",
       listTareas: [],
+      loading: false,
     };
   },
   methods: {
@@ -75,15 +83,65 @@ export default {
         nombre: this.tarea,
         estado: false,
       };
-      this.listTareas.push(Tarea);
+      // this.listTareas.push(Tarea);
+      this.loading = true;
+      axios
+        .post("https://localhost:44344/api/Tarea", Tarea)
+        .then((response) => {
+          console.log(response);
+          this.obtenerTareas();
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
       this.tarea = "";
     },
-    eliminarTarea(index) {
-      this.listTareas.splice(index, 1);
+    eliminarTarea(id) {
+      // this.listTareas.splice(index, 1);
+      this.loading = true;
+      axios
+        .delete("https://localhost:44344/api/Tarea/" + id)
+        .then((response) => {
+          console.log(response);
+          this.obtenerTareas();
+          // this.loading = false;
+        })
+        .catch((error) => {
+          console.error(error.message);
+          // this.loading = false;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
-    editarEstado(tarea, index) {
-      this.listTareas[index].estado = !tarea.estado;
+    editarEstado(tarea, id) {
+      // this.listTareas[index].estado = !tarea.estado;
+      this.loading = true;
+      axios
+        .put("https://localhost:44344/api/Tarea/" + id, tarea)
+        .then((response) => {
+          console.log(response);
+          this.obtenerTareas();
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
+    obtenerTareas() {
+      axios.get("https://localhost:44344/api/Tarea").then((response) => {
+        // console.log(response.data);
+        this.listTareas = response.data;
+      });
+    },
+  },
+  created: function() {
+    this.obtenerTareas();
   },
 };
 </script>
