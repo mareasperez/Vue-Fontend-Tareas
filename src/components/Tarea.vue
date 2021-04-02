@@ -68,6 +68,7 @@
 
 <script>
 import axios from "axios";
+const url = "https://tareas-backend-api.azurewebsites.net/api/Tarea/";
 export default {
   name: "Tarea",
   data() {
@@ -86,7 +87,7 @@ export default {
       // this.listTareas.push(Tarea);
       this.loading = true;
       axios
-        .post("https://localhost:44344/api/Tarea", Tarea)
+        .post(url, Tarea)
         .then((response) => {
           console.log(response);
           this.obtenerTareas();
@@ -103,7 +104,7 @@ export default {
       // this.listTareas.splice(index, 1);
       this.loading = true;
       axios
-        .delete("https://localhost:44344/api/Tarea/" + id)
+        .delete(url + id)
         .then((response) => {
           console.log(response);
           this.obtenerTareas();
@@ -121,7 +122,7 @@ export default {
       // this.listTareas[index].estado = !tarea.estado;
       this.loading = true;
       axios
-        .put("https://localhost:44344/api/Tarea/" + id, tarea)
+        .put(url + id, tarea)
         .then((response) => {
           console.log(response);
           this.obtenerTareas();
@@ -134,7 +135,7 @@ export default {
         });
     },
     obtenerTareas() {
-      axios.get("https://localhost:44344/api/Tarea").then((response) => {
+      axios.get(url).then((response) => {
         // console.log(response.data);
         this.listTareas = response.data;
       });
